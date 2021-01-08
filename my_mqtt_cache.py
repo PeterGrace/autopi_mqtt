@@ -25,6 +25,8 @@ defaultEndpoint = {
     #"userdata": None,
     #"protocol": "MQTTv311",
     #"transport": "tcp",
+    "username": None,
+    "password": None,
     "server": "mqtt.local",
     "port": 1883,
     "keepalive": 60,
@@ -181,7 +183,7 @@ class MqttCache(object):
                    gf.write(payload)
 
                 compressed_payload = buffer.getvalue()
-                
+
                 log.info("Compressed payload with size {:} to {:} in {:} second(s)".format(len(payload), len(compressed_payload), timer() - start))
 
                 payload = compressed_payload
@@ -252,6 +254,8 @@ class MqttCache(object):
 
         # Publish the data to MQTT
         mqttClient = mqtt.Client(endpoint["client_id"], clean_session=endpoint["clean_session"])
+        if endpoint["username"] is not None and endpoint["password"] is not None:
+            mqttClient.username_pw_set(endpoint["username"], endpoint["password"])
         mqttClient.enable_logger(log)
         mqttClient.on_publish = self._on_publish
         mqttClient.connect(endpoint["server"], port=endpoint["port"], keepalive=endpoint["keepalive"])
